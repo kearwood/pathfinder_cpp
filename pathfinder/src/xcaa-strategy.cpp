@@ -208,7 +208,6 @@ XCAAStrategy::getTransform() const
   return Matrix4::Identity();
 }
 
-
 Vector2i
 XCAAStrategy::supersampledUsedSize(Renderer& renderer)
 {
@@ -481,37 +480,42 @@ MCAAStrategy::initVAOForObject(Renderer& renderer, int objectIndex)
 
   GLDEBUG(glUseProgram(shaderProgram.getProgram()));
   GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, renderer.getRenderContext()->quadPositionsBuffer()));
-  GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aTessCoord), 2, GL_FLOAT, GL_FALSE, FLOAT32_SIZE * 2, 0));
+  GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aTessCoord),
+    2,
+    GL_FLOAT,
+    GL_FALSE,
+    FLOAT32_SIZE * 2,
+    0));
   GLDEBUG(glBindBuffer(GL_ARRAY_BUFFER, renderer.getMeshBuffers()[meshIndex]->bBoxes));
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aRect),
     4,
     GL_FLOAT,
-    false,
-    sizeof(float) * 20,
+    GL_FALSE,
+    FLOAT32_SIZE * 20,
     (void *)(sizeof(float) * 0 + offset * sizeof(float) * 20)));
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aUV),
     4,
     GL_FLOAT,
-    false,
-    sizeof(float) * 20,
+    GL_FALSE,
+    FLOAT32_SIZE * 20,
     (void *)(sizeof(float) * 4 + offset * sizeof(float) * 20)));
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aDUVDX),
     4,
     GL_FLOAT,
-    false,
-    sizeof(float) * 20,
+    GL_FALSE,
+    FLOAT32_SIZE * 20,
     (void *)(sizeof(float) * 8 + offset * sizeof(float) * 20)));
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aDUVDY),
     4,
     GL_FLOAT,
-    false,
-    sizeof(float) * 20,
+    GL_FALSE,
+    FLOAT32_SIZE * 20,
     (void *)(sizeof(float) * 12 + offset * sizeof(float) * 20)));
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aSignMode),
     4,
     GL_FLOAT,
-    false,
-    sizeof(float) * 20,
+    GL_FALSE,
+    FLOAT32_SIZE * 20,
     (void *)(sizeof(float) * 16 + offset * sizeof(float) * 20)));
 
   GLDEBUG(glEnableVertexAttribArray(shaderProgram.getAttribute(attribute_aTessCoord)));
@@ -532,7 +536,7 @@ MCAAStrategy::initVAOForObject(Renderer& renderer, int objectIndex)
   GLDEBUG(glVertexAttribPointer(shaderProgram.getAttribute(attribute_aPathID),
     1,
     GL_UNSIGNED_SHORT,
-    false,
+    GL_FALSE,
     UINT16_SIZE,
     (void *)(offset * sizeof(__uint16_t)));
   GLDEBUG(glEnableVertexAttribArray(shaderProgram.getAttribute(attribute_aPathID))));
@@ -653,13 +657,9 @@ StencilAAAStrategy::antialiasObject(Renderer& renderer, int objectIndex)
 
   // FIXME(pcwalton): Only render the appropriate instances.
   int count = renderer.getMeshes()[0]->stencilSegmentsCount();
-  if (program.hasUniform(uniform_uSide)) {
-    for (int side = 0; side < 2; side++) {
-      GLDEBUG(glUniform1i(program.getUniform(uniform_uSide), side));
-      // was instancedArraysExt.drawElementsInstancedANGLE
-      GLDEBUG(glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0, count));
-    }
-  } else {
+  for (int side = 0; side < 2; side++) {
+    GLDEBUG(glUniform1i(program.getUniform(uniform_uSide), side));
+    // was instancedArraysExt.drawElementsInstancedANGLE
     GLDEBUG(glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0, count));
   }
 
